@@ -1,6 +1,6 @@
 import mysql from "mysql2";
 import dotenv from "dotenv";
-import { Response } from "express";
+import { Response, Request } from "express";
 import { BookingRequest } from "../models/bookingRequest";
 dotenv.config();
 
@@ -82,6 +82,36 @@ export default class AppServices {
     }
     
     return dates;
+  }
+
+  public static getRequestsQuery(req: Request, res: Response): string{
+    
+    let orderBy = req.query.orderBy as string
+    const order = req.query.order as string
+
+    if(!['ASC', 'DESC'].includes(order)) {
+      res.status(400).json({message: "Invalid order"})
+      return "Invalid order";
+    }
+
+    if(!['id','dates','people','status'].includes(orderBy)) {
+      res.status(400).json({message: "Invalid order"})
+      return "Invalid order";
+    }
+
+    if(orderBy === 'people') orderBy = 'sum(adults + children)'
+    if(orderBy === 'dates') orderBy = 'checkin'
+
+    let query = ``
+
+    if(req.query.status === 'pendingReserved') {
+      query = `SELECT * FROM bookings WHERE status = 'pending' OR status = 'reserved' GROUP BY id ORDER BY ${orderBy} ${order}`
+    }
+    if(req.query.status === 'archivedRejected') {
+      query = `SELECT * FROM bookings WHERE status = 'archived' OR status = 'rejected' GROUP BY id  ORDER BY ${orderBy} ${order}`
+    }
+
+    return query
   }
 
   public static getConnection(): mysql.ConnectionOptions | undefined {

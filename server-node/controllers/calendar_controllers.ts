@@ -45,34 +45,10 @@ export const getAllRequests = async (req: Request, res: Response) => {
 
   try {
 
-    let orderBy = req.query.orderBy as string
-    const order = req.query.order as string
-    let groupBy = ""
+    let requestQuery = AppServices.getRequestsQuery(req,res)
+    if(requestQuery === "Invalid order") return;
 
-    if(!['ASC', 'DESC'].includes(order)) {
-      res.status(400).json({message: "Invalid order"})
-      return;
-    }
-
-    if(!['id','dates','people','status'].includes(orderBy)) {
-      res.status(400).json({message: "Invalid order"})
-      return;
-    }
-
-    if(orderBy === 'people') orderBy = 'sum(adults + children)'
-    if(orderBy === 'dates') orderBy = 'checkin'
-
-    let query = ``
-
-    if(req.query.status === 'pendingReserved') {
-      query = `SELECT * FROM bookings WHERE status = 'pending' OR status = 'reserved' GROUP BY id ORDER BY ${orderBy} ${order}`
-    }
-    if(req.query.status === 'archivedRejected') {
-      query = `SELECT * FROM bookings WHERE status = 'archived' OR status = 'rejected' GROUP BY id  ORDER BY ${orderBy} ${order}`
-    }
-
-    
-    let result: any = await Database.useMySql(query, [orderBy, order])
+    let result: any = await Database.useMySql(requestQuery)
     result.forEach((item: any) => {
       item.dates = AppServices.getDatesBetween(item.checkin, item.checkout);
       item.checkin = new Date(+item.checkin).toLocaleDateString();

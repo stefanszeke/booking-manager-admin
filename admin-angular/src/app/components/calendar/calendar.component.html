@@ -1,0 +1,131 @@
+
+
+<div class="main-wrapper">
+  <div class="calendar-wrapper">
+
+    <h1 id="title">Booking Manager</h1>
+  
+  
+    <div class="calender-head">
+      <h2>{{ currentMonth.toLocaleString('en-GB',{month:"long"}) }}</h2>
+      <h2>{{ currentMonth.getFullYear() }}</h2>
+    </div>
+  
+    <table id="calendar">
+  
+      <div *ngIf="(isLoadingReserved$ | async) || (reservedError$ | async)" class="calendar-overlay">
+        <h2 *ngIf="(isLoadingReserved$ | async)"  >Loading ...</h2>
+        <h2 *ngIf="(reservedError$ | async)" >Something went Wrong</h2>
+      </div>
+  
+      <div class="table-calendar">
+        <tr>
+          <th>Mon</th>
+          <th>Tue</th>
+          <th>Wed</th>
+          <th>Thu</th>
+          <th>Fri</th>
+          <th>Sat</th>
+          <th>Sun</th>
+        </tr>
+    
+        <tr>
+          <td *ngFor="let day of daysInTheMonth"
+          (click)="selectDate(day)"
+          [ngClass]="{
+            'thisMonth':currentMonth.getMonth() === day.getMonth(),
+            'notThisMonth':currentMonth.getMonth() != day.getMonth(),
+            'reserved': isReservedDate(day) === 'even',
+            'reservedOdd': isReservedDate(day) === 'odd',
+            'selected': isSelectDate(day),
+            'selectedOnTable': isSelectedOnTable(day.toLocaleDateString())
+          }"
+          >
+            {{ day.toLocaleString('en-GB',{day:"numeric"}) }}
+          </td>
+        </tr>
+      </div>
+  
+      <div class="table-buttons">
+        <div>
+          <button (click)="resetDate()">reset date</button>
+        </div>
+        <div>
+          <button (click)="prevMonth()">prev month</button>
+          <button (click)="nextMonth()">next month</button>
+        </div>
+      </div>
+    
+      <div class="statusMessages">
+        <h2 *ngIf="!(isMakingStatusChange$ | async)">{{ statusChangeMessage$ | async }}</h2>
+        <h2 *ngIf="(isMakingStatusChange$ | async)"> Changing Status</h2>
+        <h1 *ngIf="(statusChangeMessage$ | async) && !(isMakingStatusChange$ | async)"  (click)="resetStatusMessage()">x</h1>
+      </div>
+    </table>
+  </div>
+  
+  <div class="table-wrapper">
+    <table id="requests-table">
+      <button class='orderButton' (click)="getRequests()">main</button>
+      <button class='orderButton' (click)="getRequestsArchived()">archived</button>
+      <tr>
+        <th class='order-row-td' (click)="changeOrder('id')">id <span *ngIf="orderBy==='id' && order==='ASC'">↑</span> <span *ngIf="orderBy==='id' && order==='DESC'">↓</span> </th>
+        <th class='order-row-td' (click)="changeOrder('dates')">dates <span *ngIf="orderBy==='dates' && order==='ASC'">↑</span> <span *ngIf="orderBy==='dates' && order==='DESC'">↓</span></th>
+        <th class='order-row-td' (click)="changeOrder('people')">people <span *ngIf="orderBy==='people' && order==='ASC'">↑</span> <span *ngIf="orderBy==='people' && order==='DESC'">↓</span></th>
+        <th class='order-row-td' (click)="changeOrder('status')">status <span *ngIf="orderBy==='status' && order==='ASC'">↑</span> <span *ngIf="orderBy==='status' && order==='DESC'">↓</span></th>
+      </tr>
+      
+    
+    
+      <tr *ngFor="let request of (requests$ | async)" 
+        [ngClass]="{
+          'selectedOnCalendar': (isSelectedOnCalender(request.dates)||selectedOnTableId === request.id)
+        }"
+        (click)="selectDatesOnTable(request.dates, request.id)"
+      >
+  
+        <td>
+          <div class="table-item">
+            <p><b>email: </b> {{request.email}}</p>
+            <p><b>phone: </b>{{request.phone}}</p>
+          </div>
+        </td>
+    
+        <td>
+          <div class="table-item">
+            <p><b>checkin: </b> {{formatDate(request.checkin)}}</p>
+            <p><b>checkout: </b>{{formatDate(request.checkout)}}</p>
+          </div>
+        </td>
+    
+        <td>
+          <div class="table-item">
+            <p><b>adults: </b>{{request.adults}}</p> 
+            <p><b>children: </b>{{request.children}}</p>
+          </div>
+        </td>
+    
+        <td>
+          <div class="table-item">
+            <p>{{request.status}}</p>
+            <div>
+              <form id="status-form" [formGroup]="statusForm">
+              <select formControlName="status">
+                <option value="pending" [selected]="request.status === 'pending'">pending</option>
+                <option value="reserved" [selected]="request.status === 'reserved'">reserved</option>
+                <option value="rejected" [selected]="request.status === 'rejected'">rejected</option>
+                <option value="archived" [selected]="request.status === 'archived'">archived</option>
+              </select>
+              <button [disabled]="isMakingStatusChange$ | async" (click)='makeStatusChange(request.id)'>set</button>
+            </form>
+          </div>
+         </div>
+        </td>
+    
+      </tr>
+    
+    </table>
+  </div>
+  
+</div>
+

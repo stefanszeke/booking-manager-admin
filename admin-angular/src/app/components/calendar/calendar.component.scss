@@ -1,0 +1,246 @@
+.main-wrapper {
+  display: grid;
+  justify-content: center;
+  grid-auto-flow: column;
+  gap: 10px;
+}
+
+.calendar-wrapper {
+  position: sticky;
+  top: 20px;
+  margin: 20px auto;
+  width: 700px;
+  height: 590px;
+  display: grid;
+  justify-content: center;
+  border: 2px solid pink;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+#title {
+  margin-bottom: 30px;
+}
+
+#calendar {
+  position: relative;
+}
+.calendar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 420px;
+  background-color: rgba(0, 0, 0, 0.744);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 20px;
+  border-radius: 6px;
+}
+
+.calender-head {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: space-between;
+}
+.table-calendar {
+  min-height: 360px;
+}
+
+#calendar tr {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+#calendar td, #calendar th {
+  border: 1px solid rgb(255, 255, 255);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  height: 50px;
+  width: 90px;
+  user-select: none;
+}
+
+#calendar th {
+  background-color: rgb(44, 44, 47);
+  color: white;
+}
+
+#calendar td {
+  cursor: pointer;
+  transition: 90ms;
+}
+@media (hover) {
+  #calendar td:hover {
+    filter: brightness(0.9);
+    transform: scale(1.02);
+    font-size: 1.4rem;
+  }
+}
+
+
+.thisMonth {
+  background-color: rgb(55, 128, 151);
+  color: white;
+}
+
+.notThisMonth {
+  background-color: rgba(171, 171, 171, 0.24);
+  color: grey
+}
+
+.unSelectable {
+  user-select: none;
+  pointer-events: none;
+  filter:grayscale(100%) opacity(0.5);
+}
+.reserved {
+  background-color: rgb(60, 153, 97);
+  color: white;
+}
+.reservedOdd {
+  background-color: rgb(50, 113, 75);
+  color: white;
+}
+
+.selected {
+  background-color: rgb(126, 29, 133);
+  color: white;
+}
+
+.table-buttons {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: space-between;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.table-buttons div {
+  display: grid;
+  grid-auto-flow: column;
+  gap:2px,
+}
+
+.table-buttons button {
+  border: none;
+  color:white;
+  background-color: rgb(44, 44, 47);
+  width: 90px;
+  height: 30px;
+  border-radius: 8px;
+  cursor:pointer;
+  transition: 80ms;
+}
+@media (hover) {
+  .table-buttons button:hover {
+    filter: brightness(1.5);
+    transform: scale(1.05);
+  }
+}
+
+.table-wrapper {
+  margin: 20px auto;
+  border: 2px solid pink;
+  border-radius: 6px;
+  padding: 5px;
+  width: 720px;
+}
+#requests-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#requests-table > tr:not(:first-of-type) {
+  position: relative;
+  cursor: pointer;
+  &:hover {
+    background-color: rgb(67, 61, 70);
+    color: white;
+  }
+}
+
+// #requests-table tr:first-of-type {
+//   &:hover {
+//     background-color: white;
+//     color: black;
+//   }
+// }
+
+
+#requests-table td, #requests-table th {
+  border: 1px solid black;
+  padding: 5px;
+  height: 50px;
+}
+
+#requests-table .orderButton {
+  border: none;
+  background-color: rgb(44, 44, 47);
+  padding: 2px 5px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 80ms;
+  margin-right: 5px;
+}
+
+.selectedOnCalendar {
+  background-color: rgb(49, 49, 49);
+  color: white;
+}
+
+.selectedOnTable {
+  border: 8px solid rgb(49, 49, 49)!important;
+}
+
+.order-row-td {
+  cursor: pointer;
+  transition: 70ms;
+  &:hover {
+    background-color: rgb(200, 200, 200);
+    font-size: 1.1rem;
+  }
+}
+.hidden {
+  display: none;
+
+}
+
+.statusMessages {
+  height: 40px;
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: start; 
+  gap: 10px;
+  align-items: center;
+}
+
+.statusMessages h1 {
+  cursor: pointer;
+  color: brown;
+  font-size: 1.2rem;
+}
+
+@media screen and (max-width: 640px) {
+  .table-buttons button {
+    font-size: 0.7rem;
+    width: 70px;
+  }
+  .wrapper {
+    margin: 20px 10px;
+  }
+  .table-calendar {
+    min-height: 230px;
+  }
+
+  #calendar td, th {
+    width: auto;
+    height: 30px;
+  }
+}
+  
+

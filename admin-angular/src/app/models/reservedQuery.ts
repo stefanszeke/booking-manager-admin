@@ -1,0 +1,1 @@
+export type ReservedQuery = 'pendingReserved' | 'archivedRejected'

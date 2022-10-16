@@ -176,7 +176,6 @@ export class CalendarComponent implements OnInit {
 
     this.reservedDates$.subscribe(reservedDates => {
       let index = dateRegex.exec(reservedDates)?.groups?.['indx']
-      console.log(index)
   
     let indexMatch = new RegExp(`i(?<indx>${index})\/d(\\d+\/\\d+\/\\d+)`, 'g')
   

@@ -72,7 +72,6 @@ export const getAllRequests = async (req: Request, res: Response) => {
 
     
     let result: any = await Database.useMySql(query, [orderBy, order])
-    console.log(result)
     result.forEach((item: any) => {
       item.dates = AppServices.getDatesBetween(item.checkin, item.checkout)
     })
@@ -103,10 +102,6 @@ export const setStatus = async (req: Request, res: Response) => {
 
         let queryDates = `SELECT * FROM bookings WHERE id = ?`
         let resultDates: any = await Database.useMySql(queryDates, [req.params.id])
-
-        console.log(reservedDates)
-        console.log(resultDates[0].checkin)
-        console.log(reservedDates.includes(resultDates[0].checkin))
 
         if(reservedDates.includes(resultDates[0].checkin) || reservedDates.includes(resultDates[0].checkout)) {
           res.json({message: "This date is already reserved"})

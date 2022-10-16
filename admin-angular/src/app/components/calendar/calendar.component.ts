@@ -21,14 +21,17 @@ export class CalendarComponent implements OnInit {
   currentMonth = new Date();
   daysInTheMonth:Date[] = []
 
-  requests$: Observable<any> = this.store.select((state) => state.requests.requests);
-
+  
   showMessageWindow: boolean = false;
-
+  
   statusForm: FormGroup
   selectedDatesOnCalendar:string[] = []
   selectedDatesOnTable: string[] = []
   selectedOnTableId: string = ''
+  
+  isLoadingRequests$: Observable<boolean> = this.store.select((state) => state.requests.isLoadingRequests);
+  requests$: Observable<any> = this.store.select((state) => state.requests.requests);
+  requestError$: Observable<string | null> = this.store.select((state) => state.requests.requestError);
 
   isLoadingReserved$: Observable<boolean> = this.store.select(state => state.reserved.isLoadingReserved)
   reservedDates$: Observable<string> = this.store.select(state => state.reserved.reserved)
@@ -37,7 +40,7 @@ export class CalendarComponent implements OnInit {
   isMakingStatusChange$: Observable<boolean> = this.store.select(state => state.requests.isMakingStatusChange)
   statusChangeMessage$: Observable<string | null> = this.store.select(state => state.requests.statusChangeMessage)
   statusChangeError$: Observable<string | null> = this.store.select(state => state.requests.statusChangeError)
-
+  statusChangeId = ''
 
   orderBy: string = 'id'
   order:string = 'DESC'
@@ -152,7 +155,14 @@ export class CalendarComponent implements OnInit {
     this.store.dispatch(RequestsActions.requestRequests('archivedRejected', {orderBy: this.orderBy, order: this.order}))
   }
 
+  changeCategory(category:string) {
+    if(category === 'main') { this.store.dispatch(RequestsActions.clearRequests()), this.getRequests() }
+    if(category === 'archived') { this.store.dispatch(RequestsActions.clearRequests()), this.getRequestsArchived() }
+  }
+
   makeStatusChange(id:string,) {
+    if(this.statusForm.value === null) return
+    this.statusChangeId = id
     if(this.statusForm.value.status) {
       this.store.dispatch(RequestsActions.requestStatusChange(+id, this.statusForm.value.status))
       this.isMakingStatusChange$.subscribe(isMakingStatusChange => {
@@ -210,6 +220,7 @@ export class CalendarComponent implements OnInit {
   }
 
   changeOrder(orderBy:string) {
+    this.statusChangeId = ''
     if(this.orderBy === orderBy) {
       this.order = this.order === 'ASC' ? 'DESC' : 'ASC'
     } else {
@@ -217,6 +228,10 @@ export class CalendarComponent implements OnInit {
       this.order = 'DESC'
     }
     this.getRequests()
+  }
+
+  isMakingStatusChangeThisRow(id:string) {
+    id === this.statusChangeId ? true : false
   }
 
 } 

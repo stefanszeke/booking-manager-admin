@@ -18,6 +18,9 @@ export const requestRequestsFailure = createAction(
   "[Requests] Request Requests Failure",
   props<{ requestError: string }>(),
 );
+export const clearRequests = createAction(
+  "[Requests] Clear Requests"
+);
 
 // status change
 export const requestStatusChange = createAction(

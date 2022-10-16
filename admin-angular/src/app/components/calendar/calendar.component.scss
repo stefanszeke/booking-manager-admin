@@ -143,33 +143,50 @@
 }
 
 .table-wrapper {
+  position: relative;
   margin: 20px auto;
   border: 2px solid pink;
   border-radius: 6px;
-  padding: 5px;
-  width: 720px;
+  padding: 10px;
+  width: 730px;
 }
 #requests-table {
   border-collapse: collapse;
   width: 100%;
 }
 
+.table-overlay {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: 0;
+  transform: translate(0, -50%);
+  width: 100%;
+  height: 100px;
+  background-color: rgba(0, 0, 0, 0.744);
+  color: white;
+  font-size: 3rem;
+}
+.tableLoading {
+  user-select: none;
+  pointer-events: none;
+  color: grey;
+}
+
+.table-categories {
+  margin-bottom: 10px;
+}
+
 #requests-table > tr:not(:first-of-type) {
   position: relative;
   cursor: pointer;
   &:hover {
-    background-color: rgb(67, 61, 70);
+    background-color: rgba(47, 47, 47, 0.737);
     color: white;
   }
 }
-
-// #requests-table tr:first-of-type {
-//   &:hover {
-//     background-color: white;
-//     color: black;
-//   }
-// }
-
 
 #requests-table td, #requests-table th {
   border: 1px solid black;
@@ -189,12 +206,12 @@
 }
 
 .selectedOnCalendar {
-  background-color: rgb(49, 49, 49);
+  background-color: rgba(40, 40, 40, 0.71);
   color: white;
 }
 
 .selectedOnTable {
-  border: 8px solid rgb(49, 49, 49)!important;
+  border: 6px solid rgb(44, 44, 44)!important;
 }
 
 .order-row-td {
@@ -210,20 +227,52 @@
 
 }
 
-.statusMessages {
-  height: 40px;
-  display: grid;
-  grid-auto-flow: column;
-  justify-content: start; 
-  gap: 10px;
-  align-items: center;
+.status {
+  text-align: center;
+  padding: 0!important;
+  cursor:default;
 }
 
-.statusMessages h1 {
+.status select, .status button {
+  border-radius: 4px;
+  border: none;
+  background-color: rgb(87, 87, 114);
+  color: white;
+  border: 1px solid white;
   cursor: pointer;
-  color: brown;
-  font-size: 1.2rem;
+  transition: 80ms;
+  padding: 4px 5px;
+  &:hover {
+    filter: brightness(1.02);
+    transform: scale(1.08);
+  }
 }
+
+.status select {
+  margin-right: 5px;
+}
+
+.statusPending select { background-color: rgb(55, 128, 151) }
+.statusReserved select { background-color: rgb(60, 153, 97) }
+.statusRejected select { background-color: rgb(133, 48, 29) }
+.statusArchived select { background-color: rgba(241, 189, 136, 0.774) }
+
+.row-overlay {
+  display: grid;
+  grid-template-columns: 1fr 15%;
+  justify-items: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  color: white;
+  position: absolute;
+  background-color: rgba(45, 45, 45, 0.958);
+  top: 0;
+  left: 0;
+  font-size: 1.2rem;
+
+}
+
 
 @media screen and (max-width: 640px) {
   .table-buttons button {

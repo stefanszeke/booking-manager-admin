@@ -38,6 +38,10 @@ export const requestsReducer = createReducer(
     isLoadingRequests: false,
     requestError: requestError,
   })),
+  on(RequestsActions.clearRequests, (state) => ({
+    ...state,
+    requests: [],
+  })),
 
   on(RequestsActions.requestStatusChange, (state) => ({
     ...state,

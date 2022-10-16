@@ -60,6 +60,7 @@ export const getAllRequests = async (req: Request, res: Response) => {
     }
 
     if(orderBy === 'people') orderBy = 'sum(adults + children)'
+    if(orderBy === 'dates') orderBy = 'checkin'
 
     let query = ``
 
@@ -73,7 +74,9 @@ export const getAllRequests = async (req: Request, res: Response) => {
     
     let result: any = await Database.useMySql(query, [orderBy, order])
     result.forEach((item: any) => {
-      item.dates = AppServices.getDatesBetween(item.checkin, item.checkout)
+      item.dates = AppServices.getDatesBetween(item.checkin, item.checkout);
+      item.checkin = new Date(+item.checkin).toLocaleDateString();
+      item.checkout = new Date(+item.checkout).toLocaleDateString();
     })
 
     res.json(result)

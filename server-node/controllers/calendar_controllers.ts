@@ -32,7 +32,7 @@ export const getReserved = async (req: Request, res: Response) => {
     result.sort((a: any, b: any) => new Date(a.checkin).getTime() - new Date(b.checkin).getTime())
     
     result.forEach((item: any, index: number) => {
-      let datesToPush: string|string[] = AppServices.getIndexedDatesBetween(item.checkin, item.checkout, index)
+      let datesToPush: string|string[] = AppServices.getIndexedDatesBetween(item.checkin, item.checkout, item.id, index)
       reservedDates.push(datesToPush)
     })
 
@@ -82,7 +82,7 @@ export const setStatus = async (req: Request, res: Response) => {
         let queryDates = `SELECT * FROM bookings WHERE id = ?`
         let resultDates: any = await Database.useMySql(queryDates, [req.params.id])
 
-        if(reservedDates.includes(resultDates[0].checkin) || reservedDates.includes(resultDates[0].checkout)) {
+        if(reservedDates.includes(new Date(+resultDates[0].checkin).toLocaleDateString()) || reservedDates.includes(new Date(+resultDates[0].checkout).toLocaleDateString())) {
           res.json({message: "This date is already reserved"})
           return
         }

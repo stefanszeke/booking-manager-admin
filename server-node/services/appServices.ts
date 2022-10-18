@@ -46,11 +46,13 @@ export default class AppServices {
     return true
   }
 
-  public static getIndexedDatesBetween(startDate: string, endDate: string, index?: number ): (string | string[]) {
+  public static getIndexedDatesBetween(startDate: string, endDate: string, id: number, index: number ): (string | string[]) {
     startDate = new Date(+startDate).toLocaleDateString();
     endDate = new Date(+endDate).toLocaleDateString();
 
-    let datesWithIndex: string[] = [`i${index}/d${startDate}`];
+    index = index % 2 === 0 ? 0 : 1;
+
+    let datesWithIndex: string[] = [`id${id}-i${index}-d${startDate}`];
 
     let nextDay = new Date(startDate);
 
@@ -58,7 +60,7 @@ export default class AppServices {
 
     while(!isEndDate) {
       nextDay.setDate(nextDay.getDate() + 1);
-      datesWithIndex.push(`i${index}/d${nextDay.toLocaleDateString()}`);
+      datesWithIndex.push(`id${id}-i${index}-d${nextDay.toLocaleDateString()}`);
       isEndDate = nextDay.toLocaleDateString() === new Date(endDate).toLocaleDateString();
     }
     

@@ -15,6 +15,7 @@ import { reservedReducer } from "./store/reserved/reserved.reducers";
 import { ReservedEffects } from "./store/reserved/reserved.effects";
 import { RequestsEffects } from "./store/requests/requests.effects";
 import { requestsReducer } from "./store/requests/requests.reducers";
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { requestsReducer } from "./store/requests/requests.reducers";
     ReactiveFormsModule,
     HttpClientModule,
     EffectsModule.forRoot([ ReservedEffects, RequestsEffects]),
-    StoreModule.forRoot({reserved: reservedReducer, requests: requestsReducer}, {})
+    StoreModule.forRoot({reserved: reservedReducer, requests: requestsReducer}, {}),
+    FontAwesomeModule
   ],
   providers: [],
   bootstrap: [AppComponent]

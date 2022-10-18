@@ -1,11 +1,14 @@
 
 
 <div class="main-wrapper">
+
+  <!-- ******** -->
+  <!-- Calendar -->
+  <!-- ******** -->
   <div class="calendar-wrapper">
 
     <h1 id="title">Booking Manager</h1>
-  
-  
+
     <div class="calender-head">
       <h2>{{ currentMonth.toLocaleString('en-GB',{month:"long"}) }}</h2>
       <h2>{{ currentMonth.getFullYear() }}</h2>
@@ -29,9 +32,9 @@
           <th>Sun</th>
         </tr>
     
-        <tr>
+        <tr> <!-- one day on the calendar -->
           <td *ngFor="let day of daysInTheMonth"
-          (click)="selectDate(day)"
+          (click)="selectFromCalendar(day)"
           [ngClass]="{
             'thisMonth':currentMonth.getMonth() === day.getMonth(),
             'notThisMonth':currentMonth.getMonth() != day.getMonth(),
@@ -59,6 +62,9 @@
     </table>
   </div>
   
+  <!-- ***** -->
+  <!-- Table -->
+  <!-- ***** -->
   <div class="table-wrapper">
 
     <div class="table-overlay" *ngIf="(isLoadingRequests$ |async) && (requests$ |async).length < 1">
@@ -70,26 +76,26 @@
       <h2>{{ requestError$ |async }}</h2>
     </div>
 
+    <div class="table-categories">
+      <button class='orderButton' (click)="changeCategory('main')">main</button>
+      <button class='orderButton' (click)="changeCategory('archived')">archived</button>
+    </div>
 
     <table id="requests-table" [class.tableLoading]="(isLoadingRequests$ |async) || (isMakingStatusChange$ | async)">
 
-      <div class="table-categories">
-        <button class='orderButton' (click)="changeCategory('main')">main</button>
-        <button class='orderButton' (click)="changeCategory('archived')">archived</button>
-      </div>
 
-      <tr>
-        <th class='order-row-td' (click)="changeOrder('id')">id <span *ngIf="orderBy==='id' && order==='ASC'">↑</span> <span *ngIf="orderBy==='id' && order==='DESC'">↓</span> </th>
-        <th class='order-row-td' (click)="changeOrder('dates')">dates <span *ngIf="orderBy==='dates' && order==='ASC'">↑</span> <span *ngIf="orderBy==='dates' && order==='DESC'">↓</span></th>
-        <th class='order-row-td' (click)="changeOrder('people')">people <span *ngIf="orderBy==='people' && order==='ASC'">↑</span> <span *ngIf="orderBy==='people' && order==='DESC'">↓</span></th>
-        <th class='order-row-td' (click)="changeOrder('status')">status <span *ngIf="orderBy==='status' && order==='ASC'">↑</span> <span *ngIf="orderBy==='status' && order==='DESC'">↓</span></th>
+      <tr> <!-- table headers -->
+        <th class='order-row-td' (click)="changeOrder('id')">id <span *ngIf="orderBy==='id' && order==='ASC'"><fa-icon [icon]="faArrowUpWideShort"></fa-icon></span> <span *ngIf="orderBy==='id' && order==='DESC'"><fa-icon [icon]="faArrowDownWideShort"></fa-icon></span> </th>
+        <th class='order-row-td' (click)="changeOrder('dates')">dates <span *ngIf="orderBy==='dates' && order==='ASC'"><fa-icon [icon]="faArrowUpWideShort"></fa-icon></span> <span *ngIf="orderBy==='dates' && order==='DESC'"><fa-icon [icon]="faArrowDownWideShort"></fa-icon></span></th>
+        <th class='order-row-td' (click)="changeOrder('people')">people <span *ngIf="orderBy==='people' && order==='ASC'"><fa-icon [icon]="faArrowUpWideShort"></fa-icon></span> <span *ngIf="orderBy==='people' && order==='DESC'"><fa-icon [icon]="faArrowDownWideShort"></fa-icon></span></th>
+        <th class='order-row-td' (click)="changeOrder('status')">status <span *ngIf="orderBy==='status' && order==='ASC'"><fa-icon [icon]="faArrowUpWideShort"></fa-icon></span> <span *ngIf="orderBy==='status' && order==='DESC'"><fa-icon [icon]="faArrowDownWideShort"></fa-icon></span></th>
       </tr>
       
     
-    
-      <tr *ngFor="let request of (requests$ | async)" 
+     <!-- table item rows -->
+      <tr *ngFor="let request of (requests$ | async)"  
         [ngClass]="{
-          'selectedOnCalendar': (isSelectedOnCalender(request.dates)||selectedOnTableId === request.id)
+          'selectedOnCalendar': (isSelectedOnCalender(request.dates, request.id)||selectedOnTableId === request.id)
         }"
         (click)="selectDatesOnTable(request.dates, request.id)"
       >
@@ -115,7 +121,7 @@
           </div>
         </td>
     
-        <td>
+        <td> <!-- last table item, status change -->
           <div class="table-item"  class="status"
           [ngClass] = "{
             'statusPending': request.status === 'pending',
@@ -138,6 +144,7 @@
          </div>
         </td>
 
+        <!-- table row overlays -->
         <div *ngIf="(isMakingStatusChange$ | async) && statusChangeId === request.id" class="row-overlay">
           <p *ngIf="(isMakingStatusChange$ | async)">changing status</p>
         </div>
@@ -151,14 +158,11 @@
           <p>{{ statusChangeError$ | async }}</p>
           <h1 (click)="resetStatusMessage()">x</h1>
         </div>
-
-        <!-- <div (click)="resetStatusMessage()" class="row-overlay" *ngIf="(isLoadingRequests$ | async) && statusChangeId === request.id">
-          <h2>loading</h2>
-        </div> -->
     
       </tr>
     
     </table>
+
   </div>
   
 </div>

@@ -8,6 +8,8 @@ import * as ReservedActions from "../../store/reserved/reserved.actions";
 import * as RequestsActions from "../../store/requests/requests.actions";
 
 import { FormBuilder, FormGroup } from "@angular/forms";
+import { faArrowDownWideShort, faArrowUpWideShort } from "@fortawesome/free-solid-svg-icons";
+import { ReservedQuery } from "src/app/models/reservedQuery";
 
 
 @Component({
@@ -21,12 +23,12 @@ export class CalendarComponent implements OnInit {
   currentMonth = new Date();
   daysInTheMonth:Date[] = []
 
-  
-  showMessageWindow: boolean = false;
-  
   statusForm: FormGroup
-  selectedDatesOnCalendar:string[] = []
-  selectedDatesOnTable: string[] = []
+
+  selectedDatesFromCalendar:string[] = []
+  selectedDatesFromTable: string[] = []
+
+  selectedIdFromCalender: string = ''
   selectedOnTableId: string = ''
   
   isLoadingRequests$: Observable<boolean> = this.store.select((state) => state.requests.isLoadingRequests);
@@ -42,10 +44,12 @@ export class CalendarComponent implements OnInit {
   statusChangeError$: Observable<string | null> = this.store.select(state => state.requests.statusChangeError)
   statusChangeId = ''
 
+  category: ReservedQuery = "pendingReserved"
+
   orderBy: string = 'id'
   order:string = 'DESC'
 
-
+  faArrowDownWideShort = faArrowDownWideShort; faArrowUpWideShort = faArrowUpWideShort;
 
   constructor(private store: Store<AppState>, private formBuilder: FormBuilder, private scroll: ViewportScroller) { 
     this.statusForm = this.formBuilder.group({
@@ -59,11 +63,9 @@ export class CalendarComponent implements OnInit {
     this.setDaysInTheMonth();
   }
 
-
   setDaysInTheMonth() {
     this.daysInTheMonth = [...this.getDaysFromMonday(),...this.getDaysInMonth(),...this.getDaysTillSunday()]
   }
-
 
   getFirstDayOfMonth() {
     return new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth(), 1);
@@ -83,19 +85,21 @@ export class CalendarComponent implements OnInit {
   }
 
   isReservedDate(date:Date): string {
-    const dateRegex = new RegExp(`i(?<indx>\\d+)/d(${date.toLocaleDateString()})`, 'g')
+    const dateRegex = new RegExp(`id\\d+-i\\d-d(${date.toLocaleDateString()})`, 'g')
 
     let reserved = 'not reserved'
     this.reservedDates$.subscribe(reservedDates => {
-      const execRegex = dateRegex.exec(reservedDates)
 
-      if (execRegex && execRegex.groups?.['indx']) {
-        if(+execRegex.groups['indx'] % 2 === 0) {
-          reserved = "even"
-        } else {
-          reserved = "odd"
-        }
+      const match = reservedDates.match(dateRegex)
+
+      if(match) {
+        let id = match[0].match('id(?<id>\\d+)')?.groups?.['id']
+        let index = match[0].match('-i(?<index>\\d+)')?.groups?.['index']
+        console.log(match, id)
+      if(index === "0") reserved = 'even'
+      else if(index === "1") reserved = 'odd'
       }
+
     }).unsubscribe()
     return reserved
   }
@@ -149,15 +153,13 @@ export class CalendarComponent implements OnInit {
   }
 
   getRequests() {
-    this.store.dispatch(RequestsActions.requestRequests("pendingReserved", {orderBy: this.orderBy, order: this.order}))
-  }
-  getRequestsArchived() {
-    this.store.dispatch(RequestsActions.requestRequests('archivedRejected', {orderBy: this.orderBy, order: this.order}))
+    this.store.dispatch(RequestsActions.requestRequests(this.category, {orderBy: this.orderBy, order: this.order}))
+    this.statusChangeId = ''
   }
 
   changeCategory(category:string) {
-    if(category === 'main') { this.store.dispatch(RequestsActions.clearRequests()), this.getRequests() }
-    if(category === 'archived') { this.store.dispatch(RequestsActions.clearRequests()), this.getRequestsArchived() }
+    if(category === 'main') { this.category = 'pendingReserved' ,this.store.dispatch(RequestsActions.clearRequests()), this.getRequests() }
+    if(category === 'archived') { this.category = 'archivedRejected' ,this.store.dispatch(RequestsActions.clearRequests()), this.getRequests() }
   }
 
   makeStatusChange(id:string,) {
@@ -178,42 +180,46 @@ export class CalendarComponent implements OnInit {
   resetStatusMessage() {
     this.store.dispatch(RequestsActions.resetStatusMessage())
   }
-  selectDate(date:Date) {
+
+  selectFromCalendar(date:Date) {
     let dateRegex = new RegExp(`i(?<indx>\\d+)/d(${date.toLocaleDateString()})`, 'g')
     this.selectedOnTableId = ''
-    this.selectedDatesOnTable = []
+    this.selectedDatesFromTable = []
 
 
     this.reservedDates$.subscribe(reservedDates => {
       let index = dateRegex.exec(reservedDates)?.groups?.['indx']
+      console.log(reservedDates)
   
     let indexMatch = new RegExp(`i(?<indx>${index})\/d(\\d+\/\\d+\/\\d+)`, 'g')
   
     let match = reservedDates.match(indexMatch)
-    return this.selectedDatesOnCalendar = match?.map(m => m.split('/d')[1]) || []
+
+    this.selectedIdFromCalender = ""
+    return this.selectedDatesFromCalendar = match?.map(m => m.split('/d')[1]) || []
     }).unsubscribe()
   }
 
   selectDatesOnTable(dates:string[], id:string) {
     this.currentMonth = new Date(dates[0])
     this.selectedOnTableId = id
-    this.selectedDatesOnTable = dates
-    this.selectedDatesOnCalendar = []
+    this.selectedDatesFromTable = dates
+    this.selectedDatesFromCalendar = []
 
     this.setDaysInTheMonth()
   }
 
   isSelectedOnTable(date:string) {
-    return this.selectedDatesOnTable.includes(date)
+    return this.selectedDatesFromTable.includes(date)
   }
 
   isSelectDate(date:Date) {
-    return this.selectedDatesOnCalendar.includes(date.toLocaleDateString())
+    return this.selectedDatesFromCalendar.includes(date.toLocaleDateString())
   }
 
-  isSelectedOnCalender(dates:string[]) {
-    if(this.selectedDatesOnCalendar.length > 0) {
-      return dates.every(date => this.selectedDatesOnCalendar.includes(date))
+  isSelectedOnCalender(dates:string[], id:string) {
+    if(this.selectedDatesFromCalendar.length > 0) {
+      return dates.every(date => this.selectedDatesFromCalendar.includes(date))
     } else {
       return false
     }

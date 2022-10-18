@@ -14,8 +14,10 @@
   display: grid;
   justify-content: center;
   border: 2px solid pink;
+  background-color: white;
   border-radius: 6px;
   padding: 10px;
+  z-index: 10;
 }
 
 #title {
@@ -153,7 +155,9 @@
 #requests-table {
   border-collapse: collapse;
   width: 100%;
+  border: 2px solid black;
 }
+
 
 .table-overlay {
   display: grid;
@@ -168,6 +172,7 @@
   background-color: rgba(0, 0, 0, 0.744);
   color: white;
   font-size: 3rem;
+
 }
 .tableLoading {
   user-select: none;
@@ -189,12 +194,20 @@
 }
 
 #requests-table td, #requests-table th {
-  border: 1px solid black;
+  border: 1px solid rgb(77, 77, 77);
+
   padding: 5px;
   height: 50px;
 }
 
-#requests-table .orderButton {
+#requests-table td:first-child, #requests-table th:first-child {
+  border-left: none;
+}
+#requests-table tr:last-child {
+  border-bottom: none;
+}
+
+.orderButton {
   border: none;
   background-color: rgb(44, 44, 47);
   padding: 2px 5px;
@@ -203,6 +216,10 @@
   cursor: pointer;
   transition: 80ms;
   margin-right: 5px;
+  &:hover {
+    filter: brightness(1.5);
+    transform: scale(1.05);
+  }
 }
 
 .selectedOnCalendar {
@@ -255,7 +272,7 @@
 .statusPending select { background-color: rgb(55, 128, 151) }
 .statusReserved select { background-color: rgb(60, 153, 97) }
 .statusRejected select { background-color: rgb(133, 48, 29) }
-.statusArchived select { background-color: rgba(241, 189, 136, 0.774) }
+.statusArchived select { background-color: rgb(184, 143, 102) }
 
 .row-overlay {
   display: grid;
@@ -270,17 +287,24 @@
   top: 0;
   left: 0;
   font-size: 1.2rem;
-
 }
 
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 1450px) {
+  .main-wrapper {
+    grid-auto-flow: row;
+    gap: 0;
+  }
+  .calendar-wrapper {
+    height: 400px;
+    width: 100%;
+    margin: 0 auto;
+    top: 0;
+
+  }
   .table-buttons button {
     font-size: 0.7rem;
     width: 70px;
-  }
-  .wrapper {
-    margin: 20px 10px;
   }
   .table-calendar {
     min-height: 230px;

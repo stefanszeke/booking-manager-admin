@@ -79,7 +79,7 @@ export class CalendarComponent implements OnInit {
           this.getRequests()
           this.setDaysInTheMonth()
         }
-      }).unsubscribe()
+      })
     }
   }
 

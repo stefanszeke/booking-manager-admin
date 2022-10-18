@@ -163,7 +163,7 @@
           <h1 (click)="resetStatusMessage()">x</h1>
         </div>
 
-        <div (click)="resetStatusMessage()" class="row-overlay" *ngIf="(statusChangeMessage$ | async) === 'This date is already reserved' && statusChangeId === request.id" >
+        <div (click)="resetStatusMessage()" class="row-overlay" *ngIf="(statusChangeMessage$ | async) === 'Date is already reserved' && statusChangeId === request.id" >
           <p>This date is already reserved</p>
           <h1 *ngIf="!(isLoadingRequests$ | async)" (click)="resetStatusMessage()">x</h1>
         </div>

@@ -67,7 +67,7 @@ export default class AppServices {
     return datesWithIndex.join(",");
   }
 
-  public static getDatesBetween(startDate: string, endDate: string, index?: number ): (string | string[]) {
+  public static getDatesBetween(startDate: string, endDate: string, index?: number ): string[] {
     startDate = new Date(+startDate).toLocaleDateString();
     endDate = new Date(+endDate).toLocaleDateString();
 
@@ -86,7 +86,7 @@ export default class AppServices {
     return dates;
   }
 
-  public static getRequestsQuery(req: Request, res: Response): string{
+  public static getRequestsQuery(req: Request, res: Response): string {
     
     let orderBy = req.query.orderBy as string
     const order = req.query.order as string
@@ -122,6 +122,19 @@ export default class AppServices {
     let query = `SELECT * FROM bookings WHERE status = ${category} GROUP BY id ORDER BY ${orderBy} ${order}`
 
     return query
+  }
+
+  public static async isAlreadyReserved(checkin: string, checkout: string, reservedDates: string[]): Promise<boolean> {
+    let isReserved: boolean = false;
+
+    let datesToCheck: string[] = AppServices.getDatesBetween(checkin, checkout);
+
+    for(let item of datesToCheck) {
+      console.log(item)
+      if(reservedDates.join(",").match(item)) { isReserved = true; break }
+    }
+
+    return isReserved
   }
 
   public static getConnection(): mysql.ConnectionOptions | undefined {

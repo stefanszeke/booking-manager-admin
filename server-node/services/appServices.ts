@@ -90,8 +90,14 @@ export default class AppServices {
     
     let orderBy = req.query.orderBy as string
     const order = req.query.order as string
+    let status = req.query.status as string
 
     if(!['ASC', 'DESC'].includes(order)) {
+      res.status(400).json({message: "Invalid order"})
+      return "Invalid order";
+    } 
+
+    if(!['archivedRejected','pendingReserved','pending','reserved','archived','rejected'].includes(status)) {
       res.status(400).json({message: "Invalid order"})
       return "Invalid order";
     }
@@ -104,14 +110,16 @@ export default class AppServices {
     if(orderBy === 'people') orderBy = 'sum(adults + children)'
     if(orderBy === 'dates') orderBy = 'checkin'
 
-    let query = ``
+    let category = `'${req.query.status}'`
 
     if(req.query.status === 'pendingReserved') {
-      query = `SELECT * FROM bookings WHERE status = 'pending' OR status = 'reserved' GROUP BY id ORDER BY ${orderBy} ${order}`
+      category = `'pending' OR status = 'reserved'`
     }
     if(req.query.status === 'archivedRejected') {
-      query = `SELECT * FROM bookings WHERE status = 'archived' OR status = 'rejected' GROUP BY id  ORDER BY ${orderBy} ${order}`
+      category = `'archived' OR status = 'rejected'`
     }
+
+    let query = `SELECT * FROM bookings WHERE status = ${category} GROUP BY id ORDER BY ${orderBy} ${order}`
 
     return query
   }

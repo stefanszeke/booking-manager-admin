@@ -1,1 +1,1 @@
-export type ReservedQuery = 'pendingReserved' | 'archivedRejected'
+export type ReservedQuery = 'pendingReserved' | 'archivedRejected' | 'pending' | 'reserved' | 'archived' | 'rejected';

@@ -181,6 +181,9 @@
 }
 
 .table-categories {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: space-between;
   margin-bottom: 10px;
 }
 
@@ -222,12 +225,12 @@
   }
 }
 
-.selectedOnCalendar {
+.selectedFromCalendar {
   background-color: rgba(40, 40, 40, 0.71);
   color: white;
 }
 
-.selectedOnTable {
+.selectedFromTable {
   border: 6px solid rgb(44, 44, 44)!important;
 }
 

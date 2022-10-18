@@ -28,9 +28,8 @@ export class CalendarComponent implements OnInit {
   selectedDatesFromCalendar:string[] = []
   selectedDatesFromTable: string[] = []
 
-  selectedIdFromCalender: string = ''
-  selectedOnTableId: string = ''
-  
+  selectedId: number | null = null
+
   isLoadingRequests$: Observable<boolean> = this.store.select((state) => state.requests.isLoadingRequests);
   requests$: Observable<any> = this.store.select((state) => state.requests.requests);
   requestError$: Observable<string | null> = this.store.select((state) => state.requests.requestError);
@@ -63,6 +62,111 @@ export class CalendarComponent implements OnInit {
     this.setDaysInTheMonth();
   }
 
+  changeCategory(category:string) {
+    if(category === 'main') { this.category = 'pendingReserved' ,this.store.dispatch(RequestsActions.clearRequests()), this.getRequests() }
+    else if(category === 'rest') { this.category = 'archivedRejected' ,this.store.dispatch(RequestsActions.clearRequests()), this.getRequests() }
+    else { this.category = category as ReservedQuery, this.store.dispatch(RequestsActions.clearRequests()), this.getRequests() }
+  }
+
+  makeStatusChange(id:string,) {
+    if(this.statusForm.value === null) return
+    this.statusChangeId = id
+    if(this.statusForm.value.status) {
+      this.store.dispatch(RequestsActions.requestStatusChange(+id, this.statusForm.value.status))
+      this.isMakingStatusChange$.subscribe(isMakingStatusChange => {
+        if(!isMakingStatusChange) {
+          this.store.dispatch(ReservedActions.requestReserved())
+          this.getRequests()
+          this.setDaysInTheMonth()
+        }
+      }).unsubscribe()
+    }
+  }
+
+  selectFromCalendar(date:Date) {
+    let dateRegex = new RegExp(`id\\d+-i\\d-d(${date.toLocaleDateString()})`, 'g')
+    this.selectedDatesFromTable = []
+
+    this.reservedDates$.subscribe(reservedDates => {
+      let check = reservedDates.match(dateRegex) || null
+
+      if(check !== null) {
+        let id = reservedDates.match(dateRegex)![0].match('id(?<id>\\d+)')?.groups?.['id'] || null
+        if(id != null) { this.selectedId = +id }
+        let idMatch = new RegExp(`id${id}-i\\d-d(\\d+\/\\d+\/\\d+)`, 'g')
+        let match = reservedDates.match(idMatch)
+  
+        this.selectedDatesFromCalendar = match?.map(m => m.split('-d')[1]) || []
+
+        if(this.category !== 'reserved') {
+          this.changeCategory('reserved')
+        }
+
+      } else { this.selectedDatesFromCalendar = []; this.selectedId = null }
+    }).unsubscribe()
+  }
+  isSelectedFromCalender(id:string) {
+    return +id === this.selectedId
+  }
+
+  selectFromTable(dates:string[], id:string) {
+    this.currentMonth = new Date(dates[0])
+    this.selectedDatesFromTable = dates
+    this.selectedId = +id
+    this.selectedDatesFromCalendar = []
+
+    this.setDaysInTheMonth()
+  }
+
+  isSelectedFromTable(date:string) {
+    return this.selectedDatesFromTable.includes(date)
+  }
+
+  isSelectedDate(date:Date) {
+    return this.selectedDatesFromCalendar.includes(date.toLocaleDateString())
+  }
+
+
+  changeOrder(orderBy:string) {
+    this.statusChangeId = ''
+    if(this.orderBy === orderBy) {
+      this.order = this.order === 'ASC' ? 'DESC' : 'ASC'
+    } else {
+      this.orderBy = orderBy
+      this.order = 'DESC'
+    }
+    this.getRequests()
+  }
+
+  isMakingStatusChangeThisRow(id:string) {
+    id === this.statusChangeId ? true : false
+  }
+
+  resetStatusMessage() {
+    this.store.dispatch(RequestsActions.resetStatusMessage())
+  }
+
+  getRequests() {
+    this.store.dispatch(RequestsActions.requestRequests(this.category, {orderBy: this.orderBy, order: this.order}))
+  }
+
+  // calendar //////////////
+
+  // buttons
+  nextMonth() {
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth()+1, 1);
+    this.setDaysInTheMonth()
+  }
+  prevMonth() {
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth()-1, 1);
+    this.setDaysInTheMonth()
+  }
+
+  resetDate(){
+    this.currentMonth = new Date()
+    this.setDaysInTheMonth()
+  }
+  
   setDaysInTheMonth() {
     this.daysInTheMonth = [...this.getDaysFromMonday(),...this.getDaysInMonth(),...this.getDaysTillSunday()]
   }
@@ -95,11 +199,9 @@ export class CalendarComponent implements OnInit {
       if(match) {
         let id = match[0].match('id(?<id>\\d+)')?.groups?.['id']
         let index = match[0].match('-i(?<index>\\d+)')?.groups?.['index']
-        console.log(match, id)
-      if(index === "0") reserved = 'even'
-      else if(index === "1") reserved = 'odd'
+        if(index === "0") reserved = 'even'
+        else if(index === "1") reserved = 'odd'
       }
-
     }).unsubscribe()
     return reserved
   }
@@ -136,108 +238,5 @@ export class CalendarComponent implements OnInit {
     return new Date(date).toLocaleDateString("en-GB", {year: 'numeric', month: 'long', day: 'numeric'})
   }
 
-
-  // buttons
-  nextMonth() {
-    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth()+1, 1);
-    this.setDaysInTheMonth()
-  }
-  prevMonth() {
-    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth()-1, 1);
-    this.setDaysInTheMonth()
-  }
-
-  resetDate(){
-    this.currentMonth = new Date()
-    this.setDaysInTheMonth()
-  }
-
-  getRequests() {
-    this.store.dispatch(RequestsActions.requestRequests(this.category, {orderBy: this.orderBy, order: this.order}))
-    this.statusChangeId = ''
-  }
-
-  changeCategory(category:string) {
-    if(category === 'main') { this.category = 'pendingReserved' ,this.store.dispatch(RequestsActions.clearRequests()), this.getRequests() }
-    if(category === 'archived') { this.category = 'archivedRejected' ,this.store.dispatch(RequestsActions.clearRequests()), this.getRequests() }
-  }
-
-  makeStatusChange(id:string,) {
-    if(this.statusForm.value === null) return
-    this.statusChangeId = id
-    if(this.statusForm.value.status) {
-      this.store.dispatch(RequestsActions.requestStatusChange(+id, this.statusForm.value.status))
-      this.isMakingStatusChange$.subscribe(isMakingStatusChange => {
-        if(!isMakingStatusChange) {
-          this.store.dispatch(ReservedActions.requestReserved())
-          this.getRequests()
-          this.setDaysInTheMonth()
-        }
-      })
-    }
-  }
-
-  resetStatusMessage() {
-    this.store.dispatch(RequestsActions.resetStatusMessage())
-  }
-
-  selectFromCalendar(date:Date) {
-    let dateRegex = new RegExp(`i(?<indx>\\d+)/d(${date.toLocaleDateString()})`, 'g')
-    this.selectedOnTableId = ''
-    this.selectedDatesFromTable = []
-
-
-    this.reservedDates$.subscribe(reservedDates => {
-      let index = dateRegex.exec(reservedDates)?.groups?.['indx']
-      console.log(reservedDates)
-  
-    let indexMatch = new RegExp(`i(?<indx>${index})\/d(\\d+\/\\d+\/\\d+)`, 'g')
-  
-    let match = reservedDates.match(indexMatch)
-
-    this.selectedIdFromCalender = ""
-    return this.selectedDatesFromCalendar = match?.map(m => m.split('/d')[1]) || []
-    }).unsubscribe()
-  }
-
-  selectDatesOnTable(dates:string[], id:string) {
-    this.currentMonth = new Date(dates[0])
-    this.selectedOnTableId = id
-    this.selectedDatesFromTable = dates
-    this.selectedDatesFromCalendar = []
-
-    this.setDaysInTheMonth()
-  }
-
-  isSelectedOnTable(date:string) {
-    return this.selectedDatesFromTable.includes(date)
-  }
-
-  isSelectDate(date:Date) {
-    return this.selectedDatesFromCalendar.includes(date.toLocaleDateString())
-  }
-
-  isSelectedOnCalender(dates:string[], id:string) {
-    if(this.selectedDatesFromCalendar.length > 0) {
-      return dates.every(date => this.selectedDatesFromCalendar.includes(date))
-    } else {
-      return false
-    }
-  }
-
-  changeOrder(orderBy:string) {
-    this.statusChangeId = ''
-    if(this.orderBy === orderBy) {
-      this.order = this.order === 'ASC' ? 'DESC' : 'ASC'
-    } else {
-      this.orderBy = orderBy
-      this.order = 'DESC'
-    }
-    this.getRequests()
-  }
-
-  isMakingStatusChangeThisRow(id:string) {
-    id === this.statusChangeId ? true : false
-  }
-
 } 
+

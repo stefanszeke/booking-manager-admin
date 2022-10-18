@@ -40,8 +40,8 @@
             'notThisMonth':currentMonth.getMonth() != day.getMonth(),
             'reserved': isReservedDate(day) === 'even',
             'reservedOdd': isReservedDate(day) === 'odd',
-            'selected': isSelectDate(day),
-            'selectedOnTable': isSelectedOnTable(day.toLocaleDateString())
+            'selected': isSelectedDate(day),
+            'selectedFromTable': isSelectedFromTable(day.toLocaleDateString())
           }"
           >
             {{ day.toLocaleString('en-GB',{day:"numeric"}) }}
@@ -77,8 +77,16 @@
     </div>
 
     <div class="table-categories">
-      <button class='orderButton' (click)="changeCategory('main')">main</button>
-      <button class='orderButton' (click)="changeCategory('archived')">archived</button>
+      <div>
+        <button class='orderButton' (click)="changeCategory('main')">main</button>
+        <button class='orderButton' (click)="changeCategory('rest')">rest</button>
+      </div>
+      <div>
+        <button class='orderButton' (click)="changeCategory('pending')">pending</button>
+        <button class='orderButton' (click)="changeCategory('reserved')">reserved</button>
+        <button class='orderButton' (click)="changeCategory('archived')">archived</button>
+        <button class='orderButton' (click)="changeCategory('rejected')">rejected</button>
+      </div>
     </div>
 
     <table id="requests-table" [class.tableLoading]="(isLoadingRequests$ |async) || (isMakingStatusChange$ | async)">
@@ -95,9 +103,9 @@
      <!-- table item rows -->
       <tr *ngFor="let request of (requests$ | async)"  
         [ngClass]="{
-          'selectedOnCalendar': (isSelectedOnCalender(request.dates, request.id)||selectedOnTableId === request.id)
+          'selectedFromCalendar': (isSelectedFromCalender(request.id))
         }"
-        (click)="selectDatesOnTable(request.dates, request.id)"
+        (click)="selectFromTable(request.dates, request.id)"
       >
   
         <td>
@@ -149,14 +157,15 @@
           <p *ngIf="(isMakingStatusChange$ | async)">changing status</p>
         </div>
 
-        <div (click)="resetStatusMessage()" class="row-overlay" *ngIf="(statusChangeMessage$ | async) && !(isMakingStatusChange$ | async) && statusChangeId === request.id" >
-          <p>{{(statusChangeMessage$ | async)}}</p>
-          <h1 *ngIf="!(isLoadingRequests$ | async)" (click)="resetStatusMessage()">x</h1>
-        </div>
-
+        
         <div (click)="resetStatusMessage()" class="row-overlay" *ngIf="(statusChangeError$ | async) && !(isMakingStatusChange$ | async) && statusChangeId === request.id" >
           <p>{{ statusChangeError$ | async }}</p>
           <h1 (click)="resetStatusMessage()">x</h1>
+        </div>
+
+        <div (click)="resetStatusMessage()" class="row-overlay" *ngIf="(statusChangeMessage$ | async) === 'This date is already reserved' && statusChangeId === request.id" >
+          <p>This date is already reserved</p>
+          <h1 *ngIf="!(isLoadingRequests$ | async)" (click)="resetStatusMessage()">x</h1>
         </div>
     
       </tr>

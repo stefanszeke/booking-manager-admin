@@ -19,7 +19,7 @@ export class RequestsEffects {
   getRequests$ = createEffect(() =>
     this.actions$.pipe(
       ofType(RequestsActions.requestRequests), // action1
-      delay(500),  // for testing
+      // delay(500),  // for testing
 
       mergeMap(
         (action) =>
@@ -38,7 +38,7 @@ export class RequestsEffects {
   changeStatus$ = createEffect(() =>
   this.actions$.pipe(
     ofType(RequestsActions.requestStatusChange), // action1
-    delay(500),  // for testing
+    // delay(500),  // for testing
 
     mergeMap(
       (action) =>

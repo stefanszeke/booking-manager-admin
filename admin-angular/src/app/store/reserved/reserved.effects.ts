@@ -19,7 +19,7 @@ export class ReservedEffects {
   loadAllPostsEffect$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ReservedActions.requestReserved), // action1
-      delay(500), // for testing
+      // delay(500), // for testing
 
       mergeMap(
         () =>

@@ -36,6 +36,7 @@ export const getReserved = async (req: Request, res: Response) => {
       reservedDates.push(datesToPush)
     })
 
+    console.log('get reserved:', reservedDates)
     res.json(reservedDates.join(","))
 
   } catch (err) { console.log(err) }
@@ -55,6 +56,7 @@ export const getAllRequests = async (req: Request, res: Response) => {
       item.checkout = new Date(+item.checkout).toLocaleDateString();
     })
 
+    console.log('get all requests',result)
     res.json(result)
 
   } catch (err) { console.log(err) }

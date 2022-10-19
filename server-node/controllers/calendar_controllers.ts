@@ -55,6 +55,11 @@ export const getAllRequests = async (req: Request, res: Response) => {
       item.checkout = new Date(item.checkout).toLocaleDateString();
     })
 
+    if(req.query.orderBy === 'dates') {
+      result.sort((a: any, b: any) => new Date(a.checkin).getTime() - new Date(b.checkin).getTime())
+      if(req.query.order === 'DESC') result.reverse()
+    }
+
     res.json(result)
 
   } catch (err) { console.log(err) }

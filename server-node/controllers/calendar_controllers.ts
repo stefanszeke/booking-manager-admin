@@ -36,7 +36,6 @@ export const getReserved = async (req: Request, res: Response) => {
       reservedDates.push(datesToPush)
     })
 
-    console.log('get reserved:', reservedDates)
     res.json(reservedDates.join(","))
 
   } catch (err) { console.log(err) }
@@ -51,14 +50,11 @@ export const getAllRequests = async (req: Request, res: Response) => {
 
     let result: any = await Database.useMySql(requestQuery)
     result.forEach((item: any) => {
-      console.log(item.checkin)
       item.dates = AppServices.getDatesBetween(item.checkin, item.checkout);
-
-      item.checkin = new Date(+item.checkin).toLocaleDateString();
-      item.checkout = new Date(+item.checkout).toLocaleDateString();
+      item.checkin = new Date(item.checkin).toLocaleDateString();
+      item.checkout = new Date(item.checkout).toLocaleDateString();
     })
 
-    console.log('get all requests',result)
     res.json(result)
 
   } catch (err) { console.log(err) }

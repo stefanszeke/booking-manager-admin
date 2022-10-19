@@ -47,8 +47,8 @@ export default class AppServices {
   }
 
   public static getIndexedDatesBetween(startDate: string, endDate: string, id: number, index: number ): (string | string[]) {
-    startDate = new Date(+startDate).toLocaleDateString();
-    endDate = new Date(+endDate).toLocaleDateString();
+    startDate = new Date(startDate).toLocaleDateString();
+    endDate = new Date(endDate).toLocaleDateString();
 
     index = index % 2 === 0 ? 0 : 1;
 
@@ -68,8 +68,8 @@ export default class AppServices {
   }
 
   public static getDatesBetween(startDate: string, endDate: string, index?: number ): string[] {
-    startDate = new Date(+startDate).toLocaleDateString();
-    endDate = new Date(+endDate).toLocaleDateString();
+    startDate = new Date(startDate).toLocaleDateString();
+    endDate = new Date(endDate).toLocaleDateString();
 
     let dates: string[] = [startDate];
 
@@ -130,7 +130,6 @@ export default class AppServices {
     let datesToCheck: string[] = AppServices.getDatesBetween(checkin, checkout);
 
     for(let item of datesToCheck) {
-      console.log(item)
       if(reservedDates.join(",").match(item)) { isReserved = true; break }
     }
 

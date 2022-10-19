@@ -60,8 +60,6 @@ export class CalendarComponent implements OnInit {
     this.store.dispatch(ReservedActions.requestReserved())
     this.getRequests()
     this.setDaysInTheMonth();
-    this.requests$.subscribe(requests => { console.log(requests) })
-    this.reservedDates$.subscribe(reservedDates => { console.log(reservedDates) })
   }
 
   changeCategory(category:string) {

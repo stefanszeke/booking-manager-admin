@@ -51,7 +51,9 @@ export const getAllRequests = async (req: Request, res: Response) => {
 
     let result: any = await Database.useMySql(requestQuery)
     result.forEach((item: any) => {
+      console.log(item.checkin)
       item.dates = AppServices.getDatesBetween(item.checkin, item.checkout);
+
       item.checkin = new Date(+item.checkin).toLocaleDateString();
       item.checkout = new Date(+item.checkout).toLocaleDateString();
     })

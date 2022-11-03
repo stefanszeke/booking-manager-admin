@@ -5,6 +5,7 @@ import { Observable } from "rxjs";
 import { BookingRequest } from "../models/bookingRequest";
 import { ReservedDate } from "../models/reservedDate";
 import { Orders } from "../models/orders";
+import { ReservedQuery } from "../models/reservedQuery";
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +28,8 @@ export class ApiService {
   getReservedDates(): Observable<string> {
     return this.http.get<string>(`${this.url}/booking/reserved`, this.options);
   }
-  getRequests(status: string, orders: Orders): Observable<BookingRequest[]> {
+  getRequests(status: ReservedQuery, orders: Orders): Observable<BookingRequest[]> {
+    console.log(status, orders);
     return this.http.get<BookingRequest[]>(`${this.url}/booking?status=${status}&orderBy=${orders.orderBy}&order=${orders.order}`, this.options);
   }
   setStatus(id: number, status: string): Observable<{message: string}> {

@@ -16,11 +16,16 @@ import { ReservedEffects } from "./store/reserved/reserved.effects";
 import { RequestsEffects } from "./store/requests/requests.effects";
 import { requestsReducer } from "./store/requests/requests.reducers";
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { TableComponent } from './components/table/table.component';
+import { orderingReducer } from "./store/ordering/ordering.reducers";
+import { selectionsReducer } from "./store/selections/selections.reducers";
+import { calendarReducer } from "./store/calendar/calendar.reducer";
 
 @NgModule({
   declarations: [
     AppComponent,
-    CalendarComponent
+    CalendarComponent,
+    TableComponent
   ],
   imports: [
     BrowserModule,
@@ -29,7 +34,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     ReactiveFormsModule,
     HttpClientModule,
     EffectsModule.forRoot([ ReservedEffects, RequestsEffects]),
-    StoreModule.forRoot({reserved: reservedReducer, requests: requestsReducer}, {}),
+    StoreModule.forRoot({reserved: reservedReducer, requests: requestsReducer, ordering: orderingReducer, selections: selectionsReducer, calendar: calendarReducer }, {}),
     FontAwesomeModule
   ],
   providers: [],

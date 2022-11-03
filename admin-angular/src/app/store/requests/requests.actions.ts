@@ -6,7 +6,6 @@ import { ReservedQuery } from "src/app/models/reservedQuery";
 // request
 export const requestRequests = createAction(
   "[Requests] Request Requests",
-  (status: ReservedQuery, orders: Orders) => ({ status, orders }),
 );
 
 export const requestRequestsSuccess = createAction(

@@ -1,0 +1,111 @@
+<div class="table-wrapper">
+
+  <div class="table-overlay" *ngIf="(isLoadingRequests$ |async) && (requests$ |async).length < 1">
+    <h2 *ngIf="(isLoadingRequests$ |async) && !(requestError$ | async)">Loading ...</h2>
+    <h2 *ngIf="!(requestError$ |async)"></h2>
+  </div>
+
+  <div class="table-overlay" *ngIf="!(isLoadingRequests$ |async) && (requestError$ |async)">
+    <h2>{{ requestError$ |async }}</h2>
+  </div>
+
+  <div class="table-categories">
+    <div>
+      <button class='orderButton' (click)="changeCategory('main')">main</button>
+      <button class='orderButton' (click)="changeCategory('rest')">rest</button>
+    </div>
+    <div>
+      <button class='orderButton' (click)="changeCategory('pending')">pending</button>
+      <button class='orderButton' (click)="changeCategory('reserved')">reserved</button>
+      <button class='orderButton' (click)="changeCategory('archived')">archived</button>
+      <button class='orderButton' (click)="changeCategory('rejected')">rejected</button>
+    </div>
+  </div>
+
+  <table id="requests-table" [class.tableLoading]="(isLoadingRequests$ |async) || (isMakingStatusChange$ | async)">
+
+
+    <tr> <!-- table headers -->
+      <th class='order-row-td' (click)="changeOrder('id')">id <span *ngIf="(ordering$ |async)?.orderBy === 'id' && (ordering$ |async)?.order==='ASC'"><fa-icon [icon]="faArrowUpWideShort"></fa-icon></span> <span *ngIf="(ordering$ |async)?.orderBy==='id' && (ordering$ |async)?.order==='DESC'"><fa-icon [icon]="faArrowDownWideShort"></fa-icon></span> </th>
+      <th class='order-row-td' (click)="changeOrder('dates')">dates <span *ngIf="(ordering$ |async)?.orderBy==='dates' && (ordering$ |async)?.order==='ASC'"><fa-icon [icon]="faArrowUpWideShort"></fa-icon></span> <span *ngIf="(ordering$ |async)?.orderBy==='dates' && (ordering$ |async)?.order==='DESC'"><fa-icon [icon]="faArrowDownWideShort"></fa-icon></span></th>
+      <th class='order-row-td' (click)="changeOrder('people')">people <span *ngIf="(ordering$ |async)?.orderBy==='people' && (ordering$ |async)?.order==='ASC'"><fa-icon [icon]="faArrowUpWideShort"></fa-icon></span> <span *ngIf="(ordering$ |async)?.orderBy==='people' && (ordering$ |async)?.order==='DESC'"><fa-icon [icon]="faArrowDownWideShort"></fa-icon></span></th>
+      <th class='order-row-td' (click)="changeOrder('status')">status <span *ngIf="(ordering$ |async)?.orderBy==='status' && (ordering$ |async)?.order==='ASC'"><fa-icon [icon]="faArrowUpWideShort"></fa-icon></span> <span *ngIf="(ordering$ |async)?.orderBy==='status' && (ordering$ |async)?.order==='DESC'"><fa-icon [icon]="faArrowDownWideShort"></fa-icon></span></th>
+    </tr>
+    
+  
+    <!-- table item rows -->
+    <tr *ngFor="let request of (requests$ | async)"  
+      [ngClass]="{
+        'selectedFromCalendar': (isSelectedFromCalender(request.id))
+      }"
+      (click)="selectFromTable(request.dates, request.id)"
+    >
+
+      <td>
+        <div class="table-item">
+          <p><b>email: </b> {{request.email}}</p>
+          <p><b>phone: </b>{{request.phone}}</p>
+        </div>
+      </td>
+  
+      <td>
+        <div class="table-item">
+          <p><b>checkin: </b> {{formatDate(request.checkin)}}</p>
+          <p><b>checkout: </b>{{formatDate(request.checkout)}}</p>
+        </div>
+      </td>
+  
+      <td>
+        <div class="table-item">
+          <p><b>adults: </b>{{request.adults}}</p> 
+          <p><b>children: </b>{{request.children}}</p>
+        </div>
+      </td>
+  
+      <td> <!-- last table item, status change -->
+        <div class="table-item"  class="status"
+        [ngClass] = "{
+          'statusPending': request.status === 'pending',
+          'statusReserved': request.status === 'reserved',
+          'statusRejected': request.status === 'rejected',
+          'statusArchived': request.status === 'archived'
+        }">
+          <p>{{request.status.toUpperCase()}}</p>
+          <div>
+            <form id="status-form" [formGroup]="statusForm">
+            <select formControlName="status">
+              <option value="pending" [selected]="request.status === 'pending'">pending</option>
+              <option value="reserved" [selected]="request.status === 'reserved'">reserved</option>
+              <option value="rejected" [selected]="request.status === 'rejected'">rejected</option>
+              <option value="archived" [selected]="request.status === 'archived'">archived</option>
+            </select>
+            <button [disabled]="isMakingStatusChange$ | async" (click)='makeStatusChange(request.id)'>set</button>
+          </form>
+        </div>
+        </div>
+      </td>
+
+      <!-- table row overlays -->
+      <div *ngIf="(isMakingStatusChange$ | async) && statusChangeId === request.id" class="row-overlay">
+        <p *ngIf="(isMakingStatusChange$ | async)">changing status</p>
+      </div>
+
+      
+      <div (click)="resetStatusMessage()" class="row-overlay" *ngIf="(statusChangeError$ | async) && !(isMakingStatusChange$ | async) && statusChangeId === request.id" >
+        <p>{{ statusChangeError$ | async }}</p>
+        <h1 (click)="resetStatusMessage()">x</h1>
+      </div>
+
+      <div (click)="resetStatusMessage()" class="row-overlay" *ngIf="(statusChangeMessage$ | async) === 'Date is already reserved' && statusChangeId === request.id" >
+        <p>This date is already reserved</p>
+        <h1 *ngIf="!(isLoadingRequests$ | async)" (click)="resetStatusMessage()">x</h1>
+      </div>
+  
+    </tr>
+  
+  </table>
+
+</div>
+  
+
+
